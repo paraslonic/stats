@@ -13,9 +13,9 @@ parameters {
 }
 
 model {
-  // a ~ normal(0,1);
-  // b ~ normal(0,1);
-  // c ~ normal(0,1);
+  a ~ normal(0,1);
+  b ~ normal(0,1);
+  c ~ normal(0,1);
   for(i in 1:N){
       hired[i] ~ bernoulli(inv_logit(a+b*sex[i]+c*looks_good[i]));
   }
