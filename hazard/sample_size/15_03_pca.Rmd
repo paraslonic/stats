@@ -1,0 +1,48 @@
+---
+title: "Simple case"
+output: html_notebook
+---
+
+```{r}
+N <- 5000000
+pca_mean <- 2
+pca_sigma <- 4/6
+pca <- rnorm(N, pca_mean, pca_sigma)
+sd(pca)
+
+p_affected <- 0.1
+effect_size <- 0.2
+pca_2 <- rnorm(N, pca_mean, pca_sigma)
+affected <- as.integer(p_affected*N)
+pca_2[sample(1:N, affected)] <- rnorm(affected, pca_mean*(1+effect_size), pca_sigma)
+
+success_rate <- list()
+
+n_vals <- c(500,1000,2000,3000,4000,5000,6000,8000,10000,20000)
+
+for (n in n_vals){
+  p_vals <- list()
+
+  for(i in 1:1000){
+    #n <- 6000
+    pca_sample <- sample(pca, n)
+    pca_sample_2 <- sample(pca_2, n)
+    
+    res <- t.test(pca_sample, pca_sample_2)
+    p_vals[i] <- res$p.value  
+  }
+  success_rate[[n]] <- sum(p_vals<0.05)/1000
+}
+```
+
+```{r}
+plot(n_vals, unlist(success_rate), type="l", lwd = 3, frame.plot = F)
+abline(h=0.95)
+abline(h=0.9)
+abline(h=0.99)
+
+
+
+
+```
+

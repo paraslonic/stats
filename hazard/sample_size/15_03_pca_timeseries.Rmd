@@ -1,0 +1,113 @@
+---
+title: "Simple case"
+output: html_notebook
+---
+
+```{r}
+N <- 5000000
+pca_mean <- rep(2, 2)
+for(i in 2:2){pca_mean[i] <- pca_mean[i-1]*(1+rnorm(1, 0.05, 0.02))}
+
+pca_mean_2 <- rep(2, 2)
+for(i in 2:2){pca_mean_2[i] <- pca_mean_2[i-1]*(1+rnorm(1, 0.05, 0.02))}
+
+pca_sigma <- 4/6
+pca_vals <- list()
+pca_vals_2 <- list()
+for(l in 1:length(pca_mean)){
+  pca_vals[[l]] <- rnorm(N, pca_mean[l], pca_sigma)
+  pca_vals_2[[l]] <- rnorm(N, pca_mean_2[l], pca_sigma)
+}
+
+p_affected <- 0.1
+effect_size <- 0.2
+naffected <- as.integer(p_affected*N)
+affected <- sample(1:N, naffected)
+
+
+pca_vals_2[[2]][affected] <- pca_vals_2[[2]][affected]*(1+rnorm(naffected, effect_size, effect_size/2))
+success_rate <- list()
+
+n_vals <- c(500,1000,2000,3000,4000,5000,6000,8000,10000,20000)
+#n_vals <- c(500,1000,3000,6000,10000)
+
+for (n in n_vals){
+  p_vals <- list()
+
+  for(i in 1:500){
+    #n <- 6000
+    pca_sample_1_1 <- sample(pca_vals[[1]], n)
+    pca_sample_1_2 <- sample(pca_vals[[2]], n)
+    pca_sample_2_1 <- sample(pca_vals_2[[1]], n)
+    pca_sample_2_2 <- sample(pca_vals_2[[2]], n)
+    
+    delta1 <- (pca_sample_1_2-pca_sample_1_1)
+    delta2 <- (pca_sample_2_2-pca_sample_2_1)
+    
+    res <- t.test(delta1, delta2)
+    p_vals[i] <- res$p.value  
+  }
+  success_rate[[n]] <- sum(p_vals<0.001)/500
+}
+
+plot(n_vals, unlist(success_rate), type="l", lwd = 3, frame.plot = F,
+     ylab="доля тестов с p-value < 0.001", xlab="размер выборки")
+abline(h=1)
+abline(h=0.95)
+abline(h=0.9)
+abline(h=0.99)
+```
+
+```{r}
+N <- 5000000
+pca_mean <- rep(2, 2)
+for(i in 2:2){pca_mean[i] <- pca_mean[i-1]*(1+rnorm(1, 0.05, 0.02))}
+
+pca_mean_2 <- rep(2, 2)
+for(i in 2:2){pca_mean_2[i] <- pca_mean_2[i-1]*(1+rnorm(1, 0.05, 0.02))}
+
+pca_sigma <- 4/6
+pca_vals <- list()
+pca_vals_2 <- list()
+for(l in 1:length(pca_mean)){
+  pca_vals[[l]] <- rnorm(N, pca_mean[l], pca_sigma)
+  pca_vals_2[[l]] <- rnorm(N, pca_mean_2[l], pca_sigma)
+}
+
+p_affected <- 0.0
+effect_size <- 0
+naffected <- as.integer(p_affected*N)
+affected <- sample(1:N, naffected)
+
+
+pca_vals_2[[2]][affected] <- pca_vals_2[[2]][affected]*(1+rnorm(naffected, effect_size, effect_size/2))
+success_rate <- list()
+
+n_vals <- c(500,1000,2000,3000,4000,5000,6000,8000,10000,20000)
+#n_vals <- c(500,1000,3000,6000)
+
+for (n in n_vals){
+  p_vals <- list()
+
+  for(i in 1:500){
+    #n <- 6000
+    pca_sample_1_1 <- sample(pca_vals[[1]], n)
+    pca_sample_1_2 <- sample(pca_vals[[2]], n)
+    pca_sample_2_1 <- sample(pca_vals_2[[1]], n)
+    pca_sample_2_2 <- sample(pca_vals_2[[2]], n)
+    
+    delta1 <- (pca_sample_1_2-pca_sample_1_1)
+    delta2 <- (pca_sample_2_2-pca_sample_2_1)
+    res <- t.test(delta1, delta2)
+    
+    p_vals[i] <- res$p.value  
+  }
+  success_rate[[n]] <- sum(p_vals<0.001)/500
+}
+
+plot(n_vals[1:6], unlist(success_rate)[1:6], type="l", lwd = 3, frame.plot = F,
+     ylab="доля тестов с p-value < 0.001", xlab="размер выборки", ylim = c(0,0.2))
+abline(h=0.95)
+abline(h=0.9)
+abline(h=0.99)
+```
