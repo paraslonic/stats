@@ -1,0 +1,64 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## generate
+```{r}
+N <- 200
+hired <- rep(0, N)
+sex <- c(rep(0, N/2),rep(1, N/2))
+looks_good <- rnorm(N, 0, 2)
+
+for(h in 1:length(hired)){
+  hired_prob <- ifelse(sex[h]==1, 0.8, 0.4)
+  hired[h] <- rbinom(1, 1,hired_prob)
+  if(hired[h]==0 && looks_good > 1.5){
+      hired[h] <- 1
+  }
+}
+
+df <- data.frame(hired, sex, looks_good)
+
+
+```
+
+## look stan
+```{r}
+library(rstan)
+model <- stan_model('logistic.stan')
+model_abc <- stan_model('logistic_abc.stan')
+
+#cat("CXX14FLAGS += -mtune=native -march=native -Wno-ignored-attributes -Wno-deprecated-declarations", file = "~/.R/Makevars.win")
+
+```
+
+```{r}
+fit <- sampling(model_abc, data=list(N=N, hired=hired, sex=sex, looks_good=looks_good))
+fit
+
+library(bayesplot)
+posterior <- extract(fit, inc_warmup = TRUE, permuted = FALSE)
+mcmc_trace(posterior)
+fit
+
+```
+logit(p) = a+bx
+
+```{r}
+inv_logit = function(x) { exp(x)/(1+exp(x)) }
+
+inv_logit(-0.49)
+inv_logit(-0.49+1.77)
+
+```
+
+
+
+## look clasics
+```{r}
+model <- lm(hired ~ sex + looks_good, data=df, family = "binomial")
+summary(model)
+
+```
+
