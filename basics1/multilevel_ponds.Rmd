@@ -1,0 +1,72 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library("rethinking")
+
+data(reedfrogs)
+d <- reedfrogs
+str(d)
+hist(d$propsurv)
+```
+```{r}
+a_bar <- 1.5
+sigma <- 1.5
+nponds <- 120
+Ni <- as.integer( rep( c(5,10,25,35) , each=30 ) )
+a_pond <- rnorm( nponds , mean=a_bar , sd=sigma )
+
+dsim <- data.frame( pond=1:nponds , Ni=Ni , true_a=a_pond )
+dsim$Si <- rbinom( nponds , prob=logistic(dsim$true_a) , size=dsim$Ni )
+```
+```{r}
+dsim$p_nopool <- dsim$Si / dsim$Ni
+dat <- list( Si=dsim$Si , Ni=dsim$Ni , pond=dsim$pond ) 
+m13.3 <- ulam(
+  alist(
+    Si ~ dbinom( Ni , p ),
+    logit(p) <- a_pond[pond],
+    a_pond[pond] ~ dnorm( a_bar , sigma ),
+    a_bar ~ dnorm( 0 , 1.5 ),
+    sigma ~ dexp( 1 )
+  ), data=dat , chains=4 )
+
+
+```
+
+
+```{r}
+precis( m13.3 , depth=2 )
+precis( m13.3 , depth=1 )
+
+
+post <- extract.samples( m13.3 )
+hist(post$sigma)
+View(post$a_pond)
+dsim$p_partpool <- apply( inv_logit(post$a_pond) , 2 , mean )
+plot(dsim$p_partpool, dsim$p_nopool)
+
+dsim$p_true <- inv_logit( dsim$true_a )
+plot(dsim$p_true, dsim$p_nopool)
+plot(dsim$p_true, dsim$p_partpool)
+
+nopool_error <- abs( dsim$p_nopool - dsim$p_true )
+partpool_error <- abs( dsim$p_partpool - dsim$p_true )
+
+
+plot( 1:120 , nopool_error , xlab="pond" , ylab="absolute error" ,
+col=rangi2 , pch=16 )
+points( 1:120 , partpool_error )
+
+mean(nopool_error)
+mean(partpool_error)
+
+```
+
+```{r}
+nopool_avg <- aggregate(nopool_error,list(dsim$Ni),mean)
+partpool_avg <- aggregate(partpool_error,list(dsim$Ni),mean)
+```
+

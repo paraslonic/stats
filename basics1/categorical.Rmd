@@ -34,8 +34,35 @@ model <- stan_model("categorical.stan")
 ```
 
 ```{r}
-fit <- sampling(model, data <- list(N=N, D = 2, K = 3, rassa = 1+rassa, x = data.frame(height, browny)), chains = 4, iter = 2000,cores = getOption("mc.cores", 1L))
+fit <- sampling(model, data <- list(N=N, D = 2, K = 3, rassa = 1+rassa, x = data.frame(height, browny)), chains = 1, iter = 2000,cores = getOption("mc.cores", 1L))
+
 ```
+
+```{r}
+x = data.frame(height, browny)
+colMeans(x[rassa==0,])
+
+colMeans(x[rassa==1,])
+
+colMeans(x[rassa==2,])
+
+```
+
+
+```{r}
+softmax(0.94*0.6+0.7*2.44,-0.14*0.6+0.7*1.86,0)
+
+softmax(-0.94*0.27+0.25*2.44,0.14*0.27+0.25*1.86,0)
+
+softmax(-0.94*0.32-0.96*2.44,0.14*0.32-0.96*1.86,0)
+
+```
+
+```{r}
+fit
+```
+
+
 ```{r}
 library(bayesplot)
 mcmc_trace(fit)
@@ -44,6 +71,8 @@ fit
 
 
 ```{r}
-fit
+softmax(0.1,1,0)
+softmax(0.1+1,1+1,0+1)
+
 ```
 

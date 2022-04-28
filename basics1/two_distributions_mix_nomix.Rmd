@@ -1,0 +1,101 @@
+```{r}
+library(rethinking)
+```
+
+
+```{r}
+health_mean <- 5
+sick_mean <- 5
+
+health_sigma <- 0.2
+sick_sigma <- 0.6
+
+Nh <- 1000
+Ns <- 50
+
+Nh/(Nh+Ns)
+
+health_vals <- exp(rnorm(Nh, health_mean, health_sigma))
+sick_vals <- exp(rnorm(Ns, sick_mean, sick_sigma))
+
+# hist(health, breaks = 100)
+# hist(c(health_vals, sick_vals), breaks = 100)
+
+vals <- c(health_vals, sick_vals)
+```
+
+
+```{r}
+group <- c(rep("h",Nh), rep("s",Ns))
+d <- data.frame(vals, group)
+```
+
+```{r}
+d$logval <- log(d$vals)
+hist(d$logval, breaks = 200)
+```
+
+
+```{r}
+# mu1 <- ulam(
+#   alist(
+#     v ~ dnorm(mean , sigma) ,
+#     mean ~ dnorm(0, 1.5),
+#     sigma ~ dexp(1)
+# ) , data=list(v=d$logval) , chains=1 , cores=1 , log_lik=TRUE )
+```
+
+
+```{r}
+model <- stan_model(file = "normal.stan")
+model
+s <- sampling( model , data=list(y=d$logval, N=nrow(d)) , chains=1, iter=1000 )
+precis(s, 1)
+fit1 <- s
+
+```
+
+
+```{r}
+model <- stan_model(file = "mixture_norms.stan")
+model
+s <- sampling( model , data=list(y=d$logval, N=nrow(d)) , chains=1, iter=1000 )
+precis(s, 1)
+precis(s, 2)
+
+```
+
+```{r}
+model2 <- stan_model(file = "mixture_norms2.stan")
+model2
+s <- sampling( model2 , data=list(y=d$logval, N=nrow(d),K=2) , chains=1, iter=1000 )
+precis(s, 1)
+precis(s, 2)
+fit2 <- s
+getwd()
+```
+```{r}
+save.image("image.rdata")
+```
+
+
+```{r}
+library("loo")
+log_lik_2 <- extract_log_lik(fit2, merge_chains = FALSE)
+r_eff <- relative_eff(exp(log_lik_2), cores = 8) 
+loo_2 <- loo(log_lik_2, r_eff = r_eff, cores = 2)
+print(loo_2)
+
+```
+```{r}
+log_lik_1 <- extract_log_lik(fit1, merge_chains = FALSE)
+r_eff <- relative_eff(exp(log_lik_1), cores = 8) 
+loo_1 <- loo(log_lik_1, r_eff = r_eff, cores = 2)
+print(loo_1)
+
+print(loo_compare(loo_2, loo_1))
+```
+```{r}
+
+```
+

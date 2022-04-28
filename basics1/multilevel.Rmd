@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library("rethinking")
+
+data(reedfrogs)
+d <- reedfrogs
+str(d)
+hist(d$propsurv)
+```
+
+
+
+```{r}
+d$tank <- 1:nrow(d)
+dat <- list(
+  S = d$surv,
+  N = d$density,
+  tank = d$tank )
+
+head(data.frame(dat))
+# approximate posterior
+m13.1 <- ulam(
+  alist(
+    S ~ dbinom( N , p ) ,
+    logit(p) <- a[tank] ,
+    a[tank] ~ dnorm( 0 , 1.5)
+), data=dat , chains=4 , log_lik=TRUE )
+precis(m13.1, depth=2)
+
+m13.1
+```
+
+```{r}
+m13.2 <- ulam(
+  alist(
+    S ~ dbinom( N , p ) ,
+    logit(p) <- a[tank],
+    a[tank] ~ dnorm( a_bar , sigma ),
+    a_bar ~  dnorm(0, 1.5),
+    sigma ~ dexp(1)
+    
+), data=dat , chains=4 , log_lik=TRUE )
+
+```
+```{r}
+compare(m13.1, m13.2)
+```
+
+
+```{r}
+post <- extract.samples(m13.1)
+d$propsurv.est1 <- inv_logit( apply( post$a , 2 , mean ) )
+
+plot( d$propsurv , ylim=c(0,1) , pch=16 , xaxt="n" ,
+xlab="tank" , ylab="proportion survival" , col=rangi2 )
+axis( 1 , at=c(1,16,32,48) , labels=c(1,16,32,48) )
+# overlay posterior means
+points( d$propsurv.est1 )
+```
+
+```{r}
+post <- extract.samples(m13.2)
+d$propsurv.est <- inv_logit( apply( post$a , 2 , mean ) )
+
+plot( d$propsurv , ylim=c(0,1) , pch=16 , xaxt="n" ,
+xlab="tank" , ylab="proportion survival" , col=rangi2 )
+axis( 1 , at=c(1,16,32,48) , labels=c(1,16,32,48) )
+# overlay posterior means
+points( d$propsurv.est )
+
+# mark posterior mean probability across tanks
+abline( h=mean(inv_logit(post$a_bar)) , lty=2 )
+# draw vertical dividers between tank densities
+abline( v=16.5 , lwd=0.5 )
+abline( v=32.5 , lwd=0.5 )
+text( 8 , 0 , "small tanks" )
+text( 16+8 , 0 , "medium tanks" )
+text( 32+8 , 0 , "large tanks" )
+```
+
+```{r}
+post <- extract.samples(m13.2)
+sim_tanks <- rnorm(1000, post$a_bar)
+dens(inv_logit(sim_tanks))
+dens(inv_logit(post$a_bar))
+
+```
+
+
+
+
+
+```{r}
+library("brms")
+head(d)
+
+```
+

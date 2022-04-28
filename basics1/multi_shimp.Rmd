@@ -1,0 +1,86 @@
+```{r}
+library(rethinking)
+data(chimpanzees)
+d <- chimpanzees
+head(d)
+precis(d)
+```
+```{r}
+d$treatment <- 1 + d$prosoc_left + 2*d$condition
+dat_list <- list(
+  pulled_left = d$pulled_left,
+  actor = d$actor,
+  block_id = d$block,
+  treatment = as.integer(d$treatment) )
+```
+
+```{r}
+m13.4 <- ulam(
+  alist(
+    pulled_left ~ dbinom( 1 , p ) ,
+    logit(p) <- a[actor] + g[block_id] + b[treatment] ,
+    b[treatment] ~ dnorm( 0 , 0.5 ),
+    ## adaptive priors
+    a[actor] ~ dnorm( a_bar , sigma_a ),
+    g[block_id] ~ dnorm( 0 , sigma_g ),
+    ## hyper-priors
+    a_bar ~ dnorm( 0 , 1.5 ),
+    sigma_a ~ dexp(1),
+    sigma_g ~ dexp(1)
+) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE )
+```
+
+```{r}
+precis(m13.4, depth = 2)
+precis(m13.4, depth = 1)
+
+plot( precis(m13.4,depth=2) )
+```
+```{r}
+m13.5 <- ulam(
+  alist(
+    pulled_left ~ dbinom( 1 , p ) ,
+    logit(p) <- a[actor] + b[treatment] ,
+    b[treatment] ~ dnorm( 0 , 0.5 ),
+    a[actor] ~ dnorm( a_bar , sigma_a ),
+    a_bar ~ dnorm( 0 , 1.5 ),
+    sigma_a ~ dexp(1)
+) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE )
+```
+```{r}
+compare(m13.4, m13.5)
+```
+```{r}
+library(rethinking)
+m13.7_ <- ulam(
+  alist(u ~ normal(0, 1),
+        v ~ normal(0, exp(u))), data = list(N = 1))
+
+precis(m13.7)
+traceplot(m13.7)
+
+s <- extract.samples(m13.7_)
+plot(s$v, s$u, lwd=3, col=rgb(0.5,0.5,0.5,0.3))
+
+hist(s$v)
+```
+```{r}
+m13.7 <- ulam(
+  alist(v ~ normal(0, 1),
+        z ~ normal(0, 1),
+        gq> real[1]:x <<- z*exp(v)), data = list(N = 1))
+
+precis(m13.7)
+traceplot(m13.7)
+
+s <- extract.samples(m13.7)
+hist(s$x)
+plot(s$x, s$v, lwd=3, col=rgb(0.5,0.5,0.5,0.3))
+)
+```
+```{r}
+set.seed(13) 
+m13.4b <- ulam( m13.4 , chains=4 , cores=4 , control=list(adapt_delta=0.99) )
+divergent(m13.4b)
+```
+
