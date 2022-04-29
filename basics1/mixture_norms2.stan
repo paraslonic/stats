@@ -25,11 +25,19 @@ model {
 
 generated quantities {
   vector[N] log_lik;
+  matrix[N,K] post;
+  
   for (n in 1:N) {
     vector[K] lps = log(theta);
     for(k in 1:K) {
       lps += normal_lpdf(y[n]| mu[k], sigma[k]);
     }
     log_lik[n] = log_sum_exp(lps);
+  }
+  
+  for (n in 1:N) {
+    for(k in 1:K){
+      post[n,k] = normal_lpdf(y[n] | mu[k], sigma[k]);
+    }
   }
 }

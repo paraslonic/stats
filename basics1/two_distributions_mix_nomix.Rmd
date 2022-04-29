@@ -11,7 +11,7 @@ health_sigma <- 0.2
 sick_sigma <- 0.6
 
 Nh <- 1000
-Ns <- 50
+Ns <- 200
 
 Nh/(Nh+Ns)
 
@@ -26,7 +26,11 @@ vals <- c(health_vals, sick_vals)
 
 
 ```{r}
-group <- c(rep("h",Nh), rep("s",Ns))
+```
+
+
+```{r}
+group <- c(rep("h",Nh), rep("d",Ns))
 d <- data.frame(vals, group)
 ```
 
@@ -94,6 +98,35 @@ loo_1 <- loo(log_lik_1, r_eff = r_eff, cores = 2)
 print(loo_1)
 
 print(loo_compare(loo_2, loo_1))
+```
+```{r}
+log_lik <- colSums(e$log_lik)
+plot(log_lik, lwd = 2)
+```
+
+
+```{r}
+e = extract.samples(fit2)
+post = e$post
+draws <- nrow(post)
+samples <- ncol(post)
+
+post_1 = rep(0, samples)
+post_2 = rep(0, samples)
+
+for(s in 1:samples){
+  for(r in 1:draws){
+    post_1[s] = post_1[s] + post[r, s, 1]
+    post_2[s] = post_2[s] + post[r, s, 2]
+  }
+}
+head(d)
+
+d$pred = ""
+d$pred <- ifelse(post_2 > post_1, "ph", "pd")
+
+d$compare <- paste(d$group, d$pred, sep = "_")
+table(d$compare)
 ```
 ```{r}
 
