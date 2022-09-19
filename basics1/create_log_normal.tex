@@ -115,7 +115,7 @@ cursor inside it and pressing \emph{Ctrl+Shift+Enter}.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{1000}
-\NormalTok{tics }\OtherTok{\textless{}{-}} \DecValTok{100000}
+\NormalTok{tics }\OtherTok{\textless{}{-}} \DecValTok{1000}
 
 \NormalTok{val }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{50}\NormalTok{, N)}
 \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{tics)\{}
@@ -132,8 +132,7 @@ cursor inside it and pressing \emph{Ctrl+Shift+Enter}.
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 1.323377e+01 1.083287e-02 1.437920e-03 1.081114e-04 3.628870e-02
-## [6] 7.896350e-04
+## [1] 49.58110 97.25418 61.97181 56.38800 35.72728 50.53985
 \end{verbatim}
 
 \begin{Shaded}
@@ -154,12 +153,89 @@ cursor inside it and pressing \emph{Ctrl+Shift+Enter}.
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\FunctionTok{qqnorm}\NormalTok{(val, }\AttributeTok{pch =} \DecValTok{1}\NormalTok{, }\AttributeTok{frame =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{qqline}\NormalTok{(val, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{logval }\OtherTok{\textless{}{-}} \FunctionTok{log10}\NormalTok{(val)}
 \FunctionTok{qqnorm}\NormalTok{(logval, }\AttributeTok{pch =} \DecValTok{1}\NormalTok{, }\AttributeTok{frame =} \ConstantTok{FALSE}\NormalTok{)}
 \FunctionTok{qqline}\NormalTok{(logval, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-3-1.pdf}
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-3-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{tics }\OtherTok{\textless{}{-}} \DecValTok{1000}
+
+\NormalTok{val }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{50}\NormalTok{, N)}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{tics)\{}
+  \ControlFlowTok{for}\NormalTok{(n }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{N)\{}
+\NormalTok{    k }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.01}\NormalTok{)}
+\NormalTok{    d }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.01}\NormalTok{)}
+\NormalTok{    delta }\OtherTok{\textless{}{-}}\NormalTok{ k }\SpecialCharTok{{-}}\NormalTok{ val[n]}\SpecialCharTok{*}\NormalTok{d}
+\NormalTok{    val[n] }\OtherTok{\textless{}{-}}\NormalTok{ val[n] }\SpecialCharTok{+}\NormalTok{ delta}
+\NormalTok{  \}}
+\NormalTok{\}}
+
+\FunctionTok{head}\NormalTok{(val)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.9961900 0.9998196 1.0189831 0.9808305 0.9708748 0.9867485
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{hist}\NormalTok{(val,}\AttributeTok{breaks=}\DecValTok{50}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{hist}\NormalTok{(}\FunctionTok{log10}\NormalTok{(val),}\AttributeTok{breaks=}\DecValTok{50}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-5-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{qqnorm}\NormalTok{(val, }\AttributeTok{pch =} \DecValTok{1}\NormalTok{, }\AttributeTok{frame =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{qqline}\NormalTok{(val, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{logval }\OtherTok{\textless{}{-}} \FunctionTok{log10}\NormalTok{(val)}
+\FunctionTok{qqnorm}\NormalTok{(logval, }\AttributeTok{pch =} \DecValTok{1}\NormalTok{, }\AttributeTok{frame =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{qqline}\NormalTok{(logval, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-6-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{qu }\OtherTok{\textless{}{-}} \FunctionTok{log}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\FunctionTok{qqnorm}\NormalTok{(qu, }\AttributeTok{pch =} \DecValTok{1}\NormalTok{, }\AttributeTok{frame =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{qqline}\NormalTok{(qu, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{create_log_normal_files/figure-latex/unnamed-chunk-7-1.pdf}
 
 \end{document}

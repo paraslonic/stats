@@ -16,7 +16,6 @@ for(i in 1:tics){
     k <- rnorm(1, 1, 0.01)
     d <- rnorm(1, 1, 0.01)
     delta <- val[n]*k - val[n]*d
-    #delta <- k - val[n]*d
     val[n] <- val[n] + delta
   }
 }
@@ -42,5 +41,48 @@ logval <- log10(val)
 qqnorm(logval, pch = 1, frame = FALSE)
 qqline(logval, col = "steelblue", lwd = 2)
 ```
+
+```{r}
+N <- 1000
+tics <- 1000
+
+val <- rep(50, N)
+for(i in 1:tics){
+  for(n in 1:N){
+    k <- rnorm(1, 1, 0.01)
+    d <- rnorm(1, 1, 0.01)
+    delta <- k - val[n]*d
+    val[n] <- val[n] + delta
+  }
+}
+
+head(val)
+```
+
+
+```{r}
+hist(val,breaks=50)
+hist(log10(val),breaks=50)
+
+
+```
+```{r}
+
+qqnorm(val, pch = 1, frame = FALSE)
+qqline(val, col = "steelblue", lwd = 2)
+
+
+logval <- log10(val)
+qqnorm(logval, pch = 1, frame = FALSE)
+qqline(logval, col = "steelblue", lwd = 2)
+```
+
+
+```{r}
+qu <- log(rnorm(1000, 10, 1))
+qqnorm(qu, pch = 1, frame = FALSE)
+qqline(qu, col = "steelblue", lwd = 2)
+```
+
 
 
