@@ -1,30 +1,46 @@
 ---
 title: "create log-normal"
-output: html_notebook
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r}
 N <- 1000
-tics <- 100000
+tics <- 1000
 
 val <- rep(50, N)
 for(i in 1:tics){
   for(n in 1:N){
     k <- rnorm(1, 1, 0.01)
     d <- rnorm(1, 1, 0.01)
-    
-    val[n] <- val[n] + val[n]*k - val[n]*d
-    #if(val[n] < 0) val[n] <- 0.1
+    delta <- val[n]*k - val[n]*d
+    #delta <- k - val[n]*d
+    val[n] <- val[n] + delta
   }
 }
 
 head(val)
-
 ```
+
+
 
 ```{r}
 hist(val,breaks=50)
-hist(log(val),breaks=50)
+hist(log10(val),breaks=50)
+
+
 ```
+```{r}
+
+qqnorm(val, pch = 1, frame = FALSE)
+qqline(val, col = "steelblue", lwd = 2)
+
+
+logval <- log10(val)
+qqnorm(logval, pch = 1, frame = FALSE)
+qqline(logval, col = "steelblue", lwd = 2)
+```
+
 
