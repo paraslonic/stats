@@ -10,12 +10,8 @@ parameters {
 
 model {
   y ~ normal(mu, sigma);
+  mu ~ normal(0, 1);
+  sigma ~ exponential(1);
 }
 
-generated quantities {
-  vector[N] log_lik;
-  for (n in 1:N) {
-    log_lik[n] = normal_lpdf(y[n] | mu, sigma);
-  }
-}
 
